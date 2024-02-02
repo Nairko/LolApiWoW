@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistiques du Match</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        .blue { color: blue; }
+        .red { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Statistiques du Match</h1>
+    <p>Match ID: {{ match_data.match_id }}</p>
+    <p>Durée du Match: {{ match_data.match_duration }} minutes</p>
+
+    <table>
+        <tr>
+            <th>Side</th>
+            <th>Nom du Joueur</th>
+            <th>Rôle</th>
+            <th>Champion</th>
+            <th>Résultat</th>
+            <th>Kills</th>
+            <th>Assists</th>
+            <th>Deaths</th>
+            <!-- Ajoutez d'autres en-têtes de colonne ici -->
+        </tr>
+        {% for participant in match_data.participants %}
+        <tr class="{{ participant.side }}">
+            <td>{{ participant.side | capitalize }}</td>
+            <td>{{ participant.NomPlayer }}</td>
+            <td>{{ participant.RolePlayer }}</td>
+            <td>{{ participant.ChampionJouer }}</td>
+            <td>{{ participant.Resultat }}</td>
+            <td>{{ participant.playerKills }}</td>
+            <td>{{ participant.playerAssists }}</td>
+            <td>{{ participant.playerDeath }}</td>
+            <!-- Ajoutez d'autres données de participants ici -->
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

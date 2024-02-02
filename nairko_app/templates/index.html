@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- ... -->
+    <meta charset="UTF-8">
+    <title>Les 5 dernières parties de {{ summoner_name }}</title>
+</head>
+<body>
+    <h1>Les 5 dernières parties de {{ summoner_name }}</h1>
+    {% if games_data %}
+        <h2>Moyennes sur les 5 dernières parties</h2>
+        <p>KDA moyen: {{ average_kda }}</p>
+        <p>CS moyen: {{ average_cs }}</p>
+        <p>Gold moyen: {{ average_gold }}</p>
+        <p>Temps moyen des partie : {{ average_time_played }}</p>
+
+        <h2>Détails des parties</h2>
+        {% for game in games_data %}
+            <div>
+                <h3>Champion: {{ game.champion }}</h3>
+                <img src="{{ game.champion_image_url }}" alt="{{ game.champion }}" />  <!-- Image du champion -->
+                <p>KDA: {{ game.kda }}</p>
+                <p>CS: {{ game.cs }}</p>
+                <p>Gold: {{ game.gold }}</p>
+                <p>GameLenght: {{ game.GameLenght }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>{{ error }}</p>
+    {% endif %}
+</body>
+</html>

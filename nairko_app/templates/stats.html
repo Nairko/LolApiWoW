@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistiques des Parties</title>
+    <style>
+        /* Vos styles existants... */
+        .blue-text {
+            color: blue;
+        }
+        .red-text {
+            color: red;
+        }
+        .match-info {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .team-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .team {
+            width: 48%;
+        }
+        .team-header {
+            text-align: center;
+            font-weight: bold;
+        }
+        .participant {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .participant img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 10px;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        .stats {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Statistiques des 5 dernières parties de {{ summoner_name }}</h1>
+    {% for match in matches_info %}
+        <div class="match-container">
+            <div class="match-info">
+                <div>Match ID: {{ match.match_id }}</div>
+                <div>Durée du match: {{ match.match_duration }} minutes</div>
+            </div>
+            <div class="team-container">
+                <div class="team blue-side">
+                    <div class="team-header blue-text">Side Blue</div>
+                    {% for participant in match.blue_team %}
+                        <div class="participant">
+                            <img src="{{ participant.champion_image_url }}" alt="{{ participant.champion_name }}">
+                            <span class="{% if participant.summoner_name == summoner_name %}bold{% endif %}">
+                                {{ participant.summoner_name }}
+                            </span>
+                            <div class="stats">
+                                KDA: {{ participant.kda }}<br>
+                                CS: {{ participant.cs }}<br>
+                                Gold: {{ participant.gold }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="team red-side">
+                    <div class="team-header red-text">Side Red</div>
+                    {% for participant in match.red_team %}
+                        <div class="participant">
+                            <img src="{{ participant.champion_image_url }}" alt="{{ participant.champion_name }}">
+                            <span class="{% if participant.summoner_name == summoner_name %}bold{% endif %}">
+                                {{ participant.summoner_name }}
+                            </span>
+                            <div class="stats">
+                                KDA: {{ participant.kda }}<br>
+                                CS: {{ participant.cs }}<br>
+                                Gold: {{ participant.gold }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</body>
+</html>
