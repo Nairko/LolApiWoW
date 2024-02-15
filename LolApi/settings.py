@@ -79,8 +79,12 @@ WSGI_APPLICATION = 'LolApi.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'lolapi_db',
+        'USER': 'root',
+        'PASSWORD': 'RiotApi19',
+        'HOST':'127.0.0.1',
+        'PORT': '3306',
     }
 }
 
@@ -128,7 +132,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Ajoutez ceci dans settings.py
 
-CASSIOPEIA_RIOT_API_KEY = "RGAPI-b4ad957a-fc47-42ef-8225-343dacb4ae6d"
+CASSIOPEIA_RIOT_API_KEY = "RGAPI-1a1964a7-f852-4363-90a6-adafb5ccb068"
 CASSIOPEIA_DEFAULT_REGION = "EUW"   # default region
 CASSIOPEIA_PIPELINE = {   # small pipeine to get started
     "Omnistone": {},

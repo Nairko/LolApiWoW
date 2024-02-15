@@ -3,6 +3,10 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
 from django.http import HttpResponse
+from .models import Match, Participant
+from django.conf import settings
+from collections import Counter
+
 
 class SummonerView(View):
     def get(self,request):
@@ -27,8 +31,10 @@ class LastGamesView(View):
             participant = next((p for p in participants if p.summoner.id == summoner.id), None)
             time_played_seconds = participant.stats.time_played
             time_played_minutes = time_played_seconds / 60
+            summoner_is_winner = None
 
             if participant:
+                is_winner = participant.team.win
                 kills = participant.stats.kills
                 deaths = participant.stats.deaths
                 assists = participant.stats.assists
@@ -45,6 +51,7 @@ class LastGamesView(View):
                 champion_image_url = participant.champion.image.url
 
                 games_data.append({
+                    'is_winner': is_winner,
                     "champion": participant.champion.name,
                     "champion_image_url": champion_image_url,
                     "kda": f"{kills}/{deaths}/{assists}",
@@ -84,6 +91,7 @@ class DetailedStatsView(View):
             blue_team = []
             red_team = []
             match_duration_minutes = match.duration.total_seconds() / 60  # Convertir la durée en minutes
+            summoner_is_winner = None
 
             for participant in match.participants:
                 # Collecte des statistiques pour chaque participant
@@ -92,9 +100,14 @@ class DetailedStatsView(View):
                 assists = participant.stats.assists
                 cs = participant.stats.total_minions_killed + participant.stats.neutral_minions_killed
                 gold = participant.stats.gold_earned
+                is_winner = participant.team.win
+
+                if participant.summoner.id == summoner.id:
+                    summoner_is_winner = is_winner
 
                 participant_info = {
                     'summoner_name': participant.summoner.name,
+                    'is_winner': is_winner,
                     'champion_image_url': participant.champion.image.url,
                     'champion_name': participant.champion.name,
                     'kda': f"{kills}/{deaths}/{assists}",
@@ -108,12 +121,14 @@ class DetailedStatsView(View):
                 elif participant.team.side == cass.Side.red:
                     red_team.append(participant_info)
 
+
             # Ajout des informations de chaque match
             matches_info.append({
                 'match_id': match.id,
                 'match_duration': round(match_duration_minutes, 2),
                 'blue_team': blue_team,
                 'red_team': red_team,
+                'summoner_is_winner': summoner_is_winner,
             })
 
         # Contexte à passer au template
@@ -129,12 +144,18 @@ class DetailedStatsView(View):
 class DetailedDataView(View):
     def get(self, request, summoner_name):
         summoner = cass.Summoner(name=summoner_name, region="EUW")
-        match_history = summoner.match_history[:2]  # Prendre le dernier match
-        match = match_history[0] if match_history else None
-        print(len(match_history))  # Doit être > 0 pour continuer
-
-        if not match:
-            return HttpResponse("Aucune partie récente trouvée.", status=404)
+        for match in summoner.match_history:
+            try:
+                # Vérifier si le match est en ranked solo et n'est pas un remake
+                if match.queue == cass.Queue.ranked_solo_fives and match.duration.seconds >= 300:
+                    # Ce match est le dernier match classé solo non-remake
+                    break
+            except KeyError:
+                # Ignorer les matchs avec un ID de queue non reconnu
+                continue
+        else:
+            # Aucun match valide trouvé
+            return HttpResponse("Aucune partie récente trouvée en Ranked Solo/Duo ou non-remake.", status=404)
 
         # Collecter les données
         match_duration_minutes = match.duration.total_seconds() / 60
@@ -155,9 +176,9 @@ class DetailedDataView(View):
 
 
             participant_data = {
-                'side': participant.team.side.name,
+                'side': participant.team.side.name.lower(),
                 'NomPlayer': participant.summoner.name,
-                'RolePlayer': f"{participant.lane}/{participant.role}",
+                'Role': participant.lane,
                 'ChampionJouer': participant.champion.name,
                 'Resultat': 1 if participant.team.win else 0,
                 'playerKills': participant.stats.kills,
@@ -178,6 +199,98 @@ class DetailedDataView(View):
             }
 
             match_data['participants'].append(participant_data)
+        match, created = Match.objects.get_or_create(
+            match_id=match_data['match_id'],
+            defaults={'duration': match_data['match_duration']}
+        )
+        
+        # Pour chaque participant dans match_data, créer une instance de Participant
+        for participant_data in match_data['participants']:
+            participant, created = Participant.objects.update_or_create(
+                match=match,
+                nom_player=participant_data['NomPlayer'],
+                defaults={
+                    'side': participant_data['side'],
+                    'role': participant_data['Role'],
+                    'champion_jouer': participant_data['ChampionJouer'],
+                    'resultat': participant_data['Resultat'],
+                    'player_kills': participant_data['playerKills'],
+                    'player_assists': participant_data['playerAssists'],
+                    'player_deaths': participant_data['playerDeath'],
+                    'enemy_player_kills': participant_data['EnemyPlayerKills'],
+                    'enemy_player_assists': participant_data['EnemyPlayerAssists'],
+                    'enemy_player_deaths': participant_data['EnemyPlayerDeath'],
+                    'team_kills': participant_data['TeamKills'],
+                    'team_assists': participant_data['TeamAssist'],
+                    'team_deaths': participant_data['TeamDeath'],
+                    'enemy_team_kills': participant_data['enemyTeamKills'],
+                    'enemy_team_assists': participant_data['EnemyTeamAssist'],
+                    'enemy_team_deaths': participant_data['EnnemyTeamDeath'],
+                    'player_damages': participant_data['PlayerDamages'],
+                    'enemy_player_damages': participant_data['EnemyPlayerDamages'],
+                    # Ajouter d'autres champs si nécessaire
+                }
+            )
 
         return render(request, 'data.html', {'match_data': match_data})
+
+
+class Last20GamesView(View):
+    def get(self, request, summoner_name):
+        summoner = cass.Summoner(name=summoner_name, region="EUW")
+        all_matches = summoner.match_history[:20]
+
+        # Filtrer pour obtenir uniquement les matchs en ranked solo/duo
+        ranked_solo_matches = []
+        for match in all_matches:
+            try:
+                match_queue = match.queue
+                if match_queue == cass.Queue.ranked_solo_fives and match.duration.seconds >= 300:  # Exclure les parties de moins de 5 minutes
+                    ranked_solo_matches.append(match)
+                    if len(ranked_solo_matches) == 20:  # Arrêter une fois que 20 matchs valides sont trouvés
+                        break
+            except (AttributeError, KeyError):
+                # Gérer les cas où l'attribut 'queue' n'est pas disponible ou non reconnu
+                continue
+
+        if len(ranked_solo_matches) == 0:
+            return render(request, 'last20games.html', {'error': "Aucune partie récente trouvée en Ranked Solo/Duo ou non-remake"})
+        
+        print("oui regarde la", len(ranked_solo_matches))
+        role_count = Counter()
+        champion_count = Counter()
+        total_wins = 0
+
+        for match in ranked_solo_matches:
+            participant = match.participants[summoner]
+            role = str(participant.lane) if participant.lane != "NONE" else "Undefined"
+            champion = participant.champion.name
+            win = participant.stats.win
+
+            role_count[role] += 1
+            champion_count[champion] += 1
+            total_wins += 1 if win else 0
+
+        most_played_role, most_played_role_count = role_count.most_common(1)[0]
+        most_played_champion, most_played_champion_games = champion_count.most_common(1)[0]
+        champion_obj = cass.Champion(name=most_played_champion, region="EUW")
+        most_played_champion_image_url = champion_obj.image.url
+        most_played_champion_wins = sum(1 for match in ranked_solo_matches if match.participants[summoner].champion.name == most_played_champion and match.participants[summoner].stats.win)
+        win_rate_most_played_champion = (most_played_champion_wins / most_played_champion_games) * 100
+        player_win_rate = (total_wins / len(ranked_solo_matches)) * 100
+        
+
+        context = {
+            'summoner_name': summoner_name,
+            'most_played_role': most_played_role,
+            'most_played_role_count': most_played_role_count,
+            'most_played_champion': most_played_champion,
+            'most_played_champion_image_url': most_played_champion_image_url,
+            'most_played_champion_games': most_played_champion_games,
+            'win_rate_most_played_champion': win_rate_most_played_champion,
+            'player_win_rate': player_win_rate,
+            'total_games': len(ranked_solo_matches)
+        }
+
+        return render(request, 'last20games.html', context)
 

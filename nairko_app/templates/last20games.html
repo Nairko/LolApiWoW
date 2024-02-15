@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>League Stats - Last 20 Games</title>
+</head>
+<body>
+    <h1>Stats pour {{ summoner_name }} sur {{ total_games }} soloQ</h1>
+    <p>Rôle le plus joué: {{ most_played_role }} (joué {{ most_played_role_count }} fois)</p>
+    <p>Champion le plus joué ({{ most_played_champion_games }} fois): </p>
+    <p><img src="{{ most_played_champion_image_url }}" alt="{{ most_played_champion }}" /> </p>
+    <p>Taux de victoire avec le champion le plus joué: {{ win_rate_most_played_champion }}%</p>
+    <p>Taux de victoire du joueur: {{ player_win_rate }}%</p>
+</body>
+</html>

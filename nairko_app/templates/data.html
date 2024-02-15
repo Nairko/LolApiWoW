@@ -28,24 +28,46 @@
         <tr>
             <th>Side</th>
             <th>Nom du Joueur</th>
-            <th>Rôle</th>
-            <th>Champion</th>
+            <th>Role</th>
+            <th>Champion Joué</th>
             <th>Résultat</th>
             <th>Kills</th>
             <th>Assists</th>
             <th>Deaths</th>
+            <th>Enemy Kills</th>
+            <th>Enemy Assists</th>
+            <th>Enemy Deaths</th>
+            <th>Team Kills</th>
+            <th>Team Assists</th>
+            <th>Team Deaths</th>
+            <th>Enemy Team Kills</th>
+            <th>Enemy Team Assists</th>
+            <th>Enemy Team Deaths</th>
+            <th>Player Damages</th>
+            <th>Enemy Player Damages</th>
             <!-- Ajoutez d'autres en-têtes de colonne ici -->
         </tr>
         {% for participant in match_data.participants %}
         <tr class="{{ participant.side }}">
-            <td>{{ participant.side | capitalize }}</td>
+            <td>{{ participant.side }}</td>
             <td>{{ participant.NomPlayer }}</td>
-            <td>{{ participant.RolePlayer }}</td>
+            <td>{{ participant.Role }}</td>
             <td>{{ participant.ChampionJouer }}</td>
             <td>{{ participant.Resultat }}</td>
             <td>{{ participant.playerKills }}</td>
             <td>{{ participant.playerAssists }}</td>
             <td>{{ participant.playerDeath }}</td>
+            <td>{{ participant.EnemyPlayerKills }}</td>
+            <td>{{ participant.EnemyPlayerAssists }}</td>
+            <td>{{ participant.EnemyPlayerDeath }}</td>
+            <td>{{ participant.TeamKills }}</td>
+            <td>{{ participant.TeamAssist }}</td>
+            <td>{{ participant.TeamDeath }}</td>
+            <td>{{ participant.enemyTeamKills }}</td>
+            <td>{{ participant.EnemyTeamAssist }}</td>
+            <td>{{ participant.EnnemyTeamDeath }}</td>
+            <td>{{ participant.PlayerDamages }}</td>
+            <td>{{ participant.EnemyPlayerDamages }}</td>
             <!-- Ajoutez d'autres données de participants ici -->
         </tr>
         {% endfor %}

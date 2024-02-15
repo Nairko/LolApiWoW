@@ -17,6 +17,7 @@
         <h2>Détails des parties</h2>
         {% for game in games_data %}
             <div>
+                <h3>Résultat: {% if game.is_winner %}Victoire{% else %}Défaite{% endif %}</h3>
                 <h3>Champion: {{ game.champion }}</h3>
                 <img src="{{ game.champion_image_url }}" alt="{{ game.champion }}" />  <!-- Image du champion -->
                 <p>KDA: {{ game.kda }}</p>

@@ -52,6 +52,7 @@
             <div class="match-info">
                 <div>Match ID: {{ match.match_id }}</div>
                 <div>Durée du match: {{ match.match_duration }} minutes</div>
+                <div>Résultat: {% if match.summoner_is_winner %}Victoire{% else %}Défaite{% endif %}</div>
             </div>
             <div class="team-container">
                 <div class="team blue-side">
