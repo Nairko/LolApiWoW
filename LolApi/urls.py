@@ -19,6 +19,6 @@ from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('nairko/', include('nairko_app.urls')),  # Inclure les URL de l'application
+    path('', include('nairko_app.urls')),  # Inclure les URL de l'application
     # Vous pouvez changer 'nairko/' par le chemin que vous souhaitez
 ]

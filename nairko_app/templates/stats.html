@@ -45,6 +45,12 @@
         }
     </style>
 </head>
+    <div>
+        <button onclick="window.location.href='/';">Accueil</button>
+        <button onclick="window.location.href='/summoner/data/{{ summoner_name }}/'">Données Détaillées</button>
+        <button onclick="window.location.href='/summoner/last20games/{{ summoner_name }}/'">Derniers 20 Jeux</button>
+        <button onclick="window.location.href='/summoner/lastgame/{{ summoner_name }}/'">Derniers 5 Jeux</button>
+    </div>
 <body>
     <h1>Statistiques des 5 dernières parties de {{ summoner_name }}</h1>
     {% for match in matches_info %}

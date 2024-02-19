@@ -9,9 +9,9 @@ from collections import Counter
 
 
 class SummonerView(View):
-    def get(self,request):
-        summoner = cass.Summoner(name="B3NN0X", region="EUW")
-        return JsonResponse({"name": summoner.name, "level": summoner.level})
+    def get(self, request, *args, **kwargs):
+        # Affiche simplement la page avec le formulaire pour entrer le nom du joueur
+        return render(request, 'index.html')
 
 
 class LastGamesView(View):
@@ -20,7 +20,7 @@ class LastGamesView(View):
         match_history = summoner.match_history[:5]  # Prendre les 5 derniers matchs
 
         if len(match_history) == 0:
-            return render(request, 'index.html', {'error': "Aucune partie récente trouvée"})
+            return render(request, 'last5games.html', {'error': "Aucune partie récente trouvée"})
 
         total_kills = total_deaths = total_assists = total_cs = total_gold = total_time_played = 0
 
@@ -75,7 +75,7 @@ class LastGamesView(View):
             'average_time_played': average_time_played
         }
 
-        return render(request, 'index.html', context)
+        return render(request, 'last5games.html', context)
 
 class DetailedStatsView(View):
     def get(self, request, summoner_name):
@@ -164,14 +164,17 @@ class DetailedDataView(View):
             'match_duration': match_duration_minutes,
             'participants': []
         }
-
+        
         for participant in match.participants:
             # Identifier l'équipe adverse
             enemy_team = match.red_team if participant.team == match.blue_team else match.blue_team
             enemy_participant = None
+            p_total_heal = participant.stats.total_heal + participant.stats.total_heals_on_teammates
+            enemy_total_heal = 0
             for ep in enemy_team.participants:
                 if ep.lane == participant.lane:  # Comparaison simplifiée
                     enemy_participant = ep
+                    enemy_total_heal = ep.stats.total_heal + ep.stats.total_heals_on_teammates
                     break
 
 
@@ -195,6 +198,23 @@ class DetailedDataView(View):
                 'EnnemyTeamDeath': sum(p.stats.deaths for p in enemy_team.participants),
                 'PlayerDamages': participant.stats.total_damage_dealt_to_champions,
                 'EnemyPlayerDamages': enemy_participant.stats.total_damage_dealt_to_champions,
+                'TeamDamages': sum(p.stats.total_damage_dealt_to_champions for p in participant.team.participants),
+                'EnemyTeamDamages': sum(p.stats.total_damage_dealt_to_champions for p in enemy_team.participants),
+                'PlayerDamageTaken': participant.stats.total_damage_taken,
+                'EnemyPlayerDamageTaken': enemy_participant.stats.total_damage_taken,
+                'TeamDamageTaken': sum(p.stats.total_damage_taken for p in participant.team.participants),
+                'EnemyTeamDamageTaken': sum(p.stats.total_damage_taken for p in enemy_team.participants),
+                'PlayerGoldEarned': participant.stats.gold_earned,
+                'EnemyPlayerGoldEarned': enemy_participant.stats.gold_earned,
+                'TeamGoldEarned': sum(p.stats.gold_earned for p in participant.team.participants),
+                'EnemyTeamGoldEarned': sum(p.stats.gold_earned for p in enemy_team.participants),
+                'PlayerWardsKilled': participant.stats.wards_killed,
+                'EnemyPlayerWardsKilled': enemy_participant.stats.wards_killed,
+                'TeamWardsKilled': sum(p.stats.wards_killed for p in participant.team.participants),
+                'EnemyTeamWardsKilled': sum(p.stats.wards_killed for p in enemy_team.participants),
+                'PlayerTotalHeal': p_total_heal,
+                'EnemyPlayerTotalHeal': enemy_total_heal,
+
                 # ... Continuer avec les autres statistiques
             }
 
@@ -228,6 +248,23 @@ class DetailedDataView(View):
                     'enemy_team_deaths': participant_data['EnnemyTeamDeath'],
                     'player_damages': participant_data['PlayerDamages'],
                     'enemy_player_damages': participant_data['EnemyPlayerDamages'],
+                    'team_damages': participant_data['TeamDamages'],
+                    'enemy_team_damages': participant_data['EnemyTeamDamages'],
+                    'player_damage_taken': participant_data['PlayerDamageTaken'],
+                    'enemy_player_damage_taken': participant_data['EnemyPlayerDamageTaken'],
+                    'team_damage_taken': participant_data['TeamDamageTaken'],
+                    'enemy_team_damage_taken': participant_data['EnemyTeamDamageTaken'],
+                    'player_gold_earned': participant_data['PlayerGoldEarned'],
+                    'enemy_player_gold_earned': participant_data['EnemyPlayerGoldEarned'],
+                    'team_gold_earned': participant_data['TeamGoldEarned'],
+                    'enemy_team_gold_earned': participant_data['EnemyTeamGoldEarned'],
+                    'player_wards_killed': participant_data['PlayerWardsKilled'],
+                    'enemy_players_wards_killed': participant_data['EnemyPlayerWardsKilled'],
+                    'team_wards_killeds': participant_data['TeamWardsKilled'],
+                    'enemy_team_wards_killed': participant_data['EnemyTeamWardsKilled'],
+                    'player_total_heal': participant_data['PlayerTotalHeal'],
+                    'enemy_player_total_heal': participant_data['EnemyPlayerTotalHeal'],
+
                     # Ajouter d'autres champs si nécessaire
                 }
             )

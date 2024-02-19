@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <div>
+        <button onclick="window.location.href='/';">Accueil</button>
+        <button onclick="window.location.href='/summoner/stats/{{ summoner_name }}/'">Statistiques Détaillées</button>
+        <button onclick="window.location.href='/summoner/data/{{ summoner_name }}/'">Données Détaillées</button>
+        <button onclick="window.location.href='/summoner/lastgame/{{ summoner_name }}/'">Derniers 5 Jeux</button>
+    </div>
     <title>League Stats - Last 20 Games</title>
 </head>
 <body>
@@ -10,5 +16,6 @@
     <p><img src="{{ most_played_champion_image_url }}" alt="{{ most_played_champion }}" /> </p>
     <p>Taux de victoire avec le champion le plus joué: {{ win_rate_most_played_champion }}%</p>
     <p>Taux de victoire du joueur: {{ player_win_rate }}%</p>
+    
 </body>
 </html>

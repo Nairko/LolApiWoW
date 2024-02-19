@@ -19,6 +19,12 @@
         .red { color: red; }
     </style>
 </head>
+    <div>
+        <button onclick="window.location.href='/';">Accueil</button>
+        <button onclick="window.location.href='/summoner/stats/{{ summoner_name }}/'">Statistiques Détaillées</button>
+        <button onclick="window.location.href='/summoner/last20games/{{ summoner_name }}/'">Derniers 20 Jeux</button>
+        <button onclick="window.location.href='/summoner/lastgame/{{ summoner_name }}/'">Derniers 5 Jeux</button>
+    </div>
 <body>
     <h1>Statistiques du Match</h1>
     <p>Match ID: {{ match_data.match_id }}</p>
@@ -45,6 +51,25 @@
             <th>Enemy Team Deaths</th>
             <th>Player Damages</th>
             <th>Enemy Player Damages</th>
+            <th>Team Damages</th>
+            <th>Enemy Team Damages</th>
+            <th>Player Damage Taken</th>
+            <th>Enemy Player Damage Taken</th>
+            <th>Team Damage Taken</th>
+            <th>Enemy Team Damage Taken</th>
+            <th>Player Gold Earned</th>
+            <th>Enemy Player Gold Earned</th>
+            <th>Team Gold Earned</th>
+            <th>Enemy Team Gold Earned</th>
+            <th>Player Wards Killed</th>
+            <th>Enemy Player Wards Killed</th>
+            <th>Team Wards Killed</th>
+            <th>Enemy Team Wards Killed</th>
+            <th>Player Total Heal</th>
+            <th>Enemy Player Total Heal</th>
+            <th>Team Total Heal</th>
+            <th>Enemy Team Total Heal</th>
+
             <!-- Ajoutez d'autres en-têtes de colonne ici -->
         </tr>
         {% for participant in match_data.participants %}
@@ -68,6 +93,24 @@
             <td>{{ participant.EnnemyTeamDeath }}</td>
             <td>{{ participant.PlayerDamages }}</td>
             <td>{{ participant.EnemyPlayerDamages }}</td>
+            <td>{{ participant.TeamDamages}}</td>
+            <td>{{ participant.EnemyTeamDamages}}</td>
+            <td>{{ participant.PlayerDamageTaken}}</td>
+            <td>{{ participant.EnemyPlayerDamageTaken}}</td>
+            <td>{{ participant.TeamDamageTaken}}</td>
+            <td>{{ participant.EnemyTeamDamageTaken}}</td>
+            <td>{{ participant.PlayerGoldEarned}}</td>
+            <td>{{ participant.EnemyPlayerGoldEarned}}</td>
+            <td>{{ participant.TeamGoldEarned}}</td>
+            <td>{{ participant.EnemyTeamGoldEarned}}</td>
+            <td>{{ participant.PlayerWardsKilled}}</td>
+            <td>{{ participant.EnemyPlayerWardsKilled}}</td>
+            <td>{{ participant.TeamWardsKilled}}</td>
+            <td>{{ participant.EnemyTeamWardsKilled}}</td>
+            <td>{{ participant.PlayerTotalHeal}}</td>
+            <td>{{ participant.EnemyPlayerTotalHeal}}</td>
+            <td>{{ participant.TeamTotalHeal}}</td>
+            <td>{{ participant.EnemyTeamTotalHeal}}</td>
             <!-- Ajoutez d'autres données de participants ici -->
         </tr>
         {% endfor %}

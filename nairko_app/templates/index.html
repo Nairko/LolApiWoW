@@ -1,33 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
-    <!-- ... -->
     <meta charset="UTF-8">
-    <title>Les 5 dernières parties de {{ summoner_name }}</title>
+    <title>Statistiques LoL</title>
+    <!-- Ajoutez votre CSS ici -->
 </head>
 <body>
-    <h1>Les 5 dernières parties de {{ summoner_name }}</h1>
-    {% if games_data %}
-        <h2>Moyennes sur les 5 dernières parties</h2>
-        <p>KDA moyen: {{ average_kda }}</p>
-        <p>CS moyen: {{ average_cs }}</p>
-        <p>Gold moyen: {{ average_gold }}</p>
-        <p>Temps moyen des partie : {{ average_time_played }}</p>
-
-        <h2>Détails des parties</h2>
-        {% for game in games_data %}
-            <div>
-                <h3>Résultat: {% if game.is_winner %}Victoire{% else %}Défaite{% endif %}</h3>
-                <h3>Champion: {{ game.champion }}</h3>
-                <img src="{{ game.champion_image_url }}" alt="{{ game.champion }}" />  <!-- Image du champion -->
-                <p>KDA: {{ game.kda }}</p>
-                <p>CS: {{ game.cs }}</p>
-                <p>Gold: {{ game.gold }}</p>
-                <p>GameLenght: {{ game.GameLenght }}</p>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>{{ error }}</p>
-    {% endif %}
+    <h1>Statistiques de League of Legends</h1>
+    <input type="text" id="summonerName" placeholder="Entrez le nom du joueur">
+    <button onclick="redirectTo('stats')">Voir les stats des derniers jeux</button>
+    <button onclick="redirectTo('data')">Voir les données détaillées</button>
+    <button onclick="redirectTo('last20games')">Voir les 20 derniers jeux</button>
+    <button onclick="redirectTo('lastgame')">Voir les 5 derniers jeux</button>
+    <script>
+        function redirectTo(type) {
+            const summonerName = document.getElementById('summonerName').value;
+            if (!summonerName) {
+                alert('Veuillez entrer le nom d\'un joueur.');
+                return;
+            }
+            let url = '';
+            switch(type) {
+                case 'stats':
+                    url = `/summoner/stats/${summonerName}/`;
+                    break;
+                case 'data':
+                    url = `/summoner/data/${summonerName}/`;
+                    break;
+                case 'last20games':
+                    url = `/summoner/last20games/${summonerName}/`;
+                    break;
+                case 'lastgame':
+                    url = `/summoner/lastgame/${summonerName}/`;
+                    break;
+                default:
+                    return; // Ne fait rien si le type n'est pas reconnu
+            }
+            window.location.href = url;
+        }
+    </script>
 </body>
 </html>
