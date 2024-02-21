@@ -132,7 +132,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Ajoutez ceci dans settings.py
 
-CASSIOPEIA_RIOT_API_KEY = "RGAPI-2e4b1870-2bf2-4963-80a5-15ee43c6fa3e"
+CASSIOPEIA_RIOT_API_KEY = "RGAPI-bdf063bd-6ac0-4e5d-944d-9dbd5bab1c89"
 CASSIOPEIA_DEFAULT_REGION = "EUW"   # default region
 CASSIOPEIA_PIPELINE = {   # small pipeine to get started
     "Omnistone": {},

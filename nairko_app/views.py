@@ -159,23 +159,45 @@ class DetailedDataView(View):
 
         # Collecter les données
         match_duration_minutes = match.duration.total_seconds() / 60
+        team_total_heal = {team.side.name: 0 for team in [match.red_team, match.blue_team]}
+        team_wards_placed_totals = {team.side.name: 0 for team in [match.red_team, match.blue_team]}
+        team_total_cs = {team.side.name: 0 for team in [match.red_team, match.blue_team]}
+
+        for participant in match.participants:
+            team_total_heal[participant.team.side.name] += participant.stats.total_heal + participant.stats.total_heals_on_teammates
+            team_wards_placed_totals[participant.team.side.name] += participant.stats.wards_placed + participant.stats.vision_wards_placed
+            team_total_cs[participant.team.side.name] += participant.stats.total_minions_killed + participant.stats.neutral_minions_killed
         match_data = {
             'match_id': match.id,
             'match_duration': match_duration_minutes,
+            'team_total_heal': team_total_heal[match.blue_team.side.name],
+            'enemy_team_total_heal': team_total_heal[match.red_team.side.name],
             'participants': []
         }
-        
+        print(match_data)
         for participant in match.participants:
             # Identifier l'équipe adverse
             enemy_team = match.red_team if participant.team == match.blue_team else match.blue_team
             enemy_participant = None
             p_total_heal = participant.stats.total_heal + participant.stats.total_heals_on_teammates
+            p_total_wards_placed = participant.stats.wards_placed +  participant.stats.vision_wards_placed
+            p_cs = participant.stats.total_minions_killed + participant.stats.neutral_minions_killed
             enemy_total_heal = 0
             for ep in enemy_team.participants:
                 if ep.lane == participant.lane:  # Comparaison simplifiée
                     enemy_participant = ep
                     enemy_total_heal = ep.stats.total_heal + ep.stats.total_heals_on_teammates
+                    enemy_total_wards_placed = ep.stats.wards_placed + ep.stats.vision_wards_placed
+                    enemy_cs = ep.stats.total_minions_killed + ep.stats.neutral_minions_killed
                     break
+            
+            participant_team_total_heal = team_total_heal[participant.team.side.name]
+            participant_enemy_team_total_heal = team_total_heal[enemy_team.side.name]
+            participant_team_total_wards_placed = team_wards_placed_totals[participant.team.side.name]
+            participant_enemy_team_total_wards_placed = team_wards_placed_totals[enemy_team.side.name]
+            participant_team_total_cs = team_total_cs[participant.team.side.name]
+            participant_enemy_team_total_cs= team_total_cs[enemy_team.side.name]
+            
 
 
             participant_data = {
@@ -196,6 +218,10 @@ class DetailedDataView(View):
                 'enemyTeamKills': sum(p.stats.kills for p in enemy_team.participants),
                 'EnemyTeamAssist': sum(p.stats.assists for p in enemy_team.participants),
                 'EnnemyTeamDeath': sum(p.stats.deaths for p in enemy_team.participants),
+                'PlayerCS':p_cs,
+                'EnemyPlayerCS':enemy_cs,
+                'TeamTotalCS':participant_team_total_cs,
+                'EnemyTeamTotalCS':participant_enemy_team_total_cs,
                 'PlayerDamages': participant.stats.total_damage_dealt_to_champions,
                 'EnemyPlayerDamages': enemy_participant.stats.total_damage_dealt_to_champions,
                 'TeamDamages': sum(p.stats.total_damage_dealt_to_champions for p in participant.team.participants),
@@ -204,16 +230,24 @@ class DetailedDataView(View):
                 'EnemyPlayerDamageTaken': enemy_participant.stats.total_damage_taken,
                 'TeamDamageTaken': sum(p.stats.total_damage_taken for p in participant.team.participants),
                 'EnemyTeamDamageTaken': sum(p.stats.total_damage_taken for p in enemy_team.participants),
+                'PlayerDamageMitigated': participant.stats.damage_self_mitigated,
                 'PlayerGoldEarned': participant.stats.gold_earned,
                 'EnemyPlayerGoldEarned': enemy_participant.stats.gold_earned,
                 'TeamGoldEarned': sum(p.stats.gold_earned for p in participant.team.participants),
                 'EnemyTeamGoldEarned': sum(p.stats.gold_earned for p in enemy_team.participants),
+                'PlayerTotalWardsPlaced':p_total_wards_placed,
+                'EnemyPlayerTotalWardsPlaced':enemy_total_wards_placed,
+                'TeamTotalWardsPlaced': participant_team_total_wards_placed,
+                'EnemyTeamTotalWardsPlaced':participant_enemy_team_total_wards_placed,
                 'PlayerWardsKilled': participant.stats.wards_killed,
                 'EnemyPlayerWardsKilled': enemy_participant.stats.wards_killed,
                 'TeamWardsKilled': sum(p.stats.wards_killed for p in participant.team.participants),
                 'EnemyTeamWardsKilled': sum(p.stats.wards_killed for p in enemy_team.participants),
                 'PlayerTotalHeal': p_total_heal,
                 'EnemyPlayerTotalHeal': enemy_total_heal,
+                'TeamTotalHeal': participant_team_total_heal,
+                'EnemyTeamTotalHeal':participant_enemy_team_total_heal,
+                
 
                 # ... Continuer avec les autres statistiques
             }
@@ -246,6 +280,10 @@ class DetailedDataView(View):
                     'enemy_team_kills': participant_data['enemyTeamKills'],
                     'enemy_team_assists': participant_data['EnemyTeamAssist'],
                     'enemy_team_deaths': participant_data['EnnemyTeamDeath'],
+                    'player_cs': participant_data['PlayerCS'],
+                    'enemy_player_cs': participant_data['EnemyPlayerCS'],
+                    'team_cs': participant_data['TeamTotalCS'],
+                    'enemy_team_cs': participant_data['EnemyTeamTotalCS'],
                     'player_damages': participant_data['PlayerDamages'],
                     'enemy_player_damages': participant_data['EnemyPlayerDamages'],
                     'team_damages': participant_data['TeamDamages'],
@@ -254,16 +292,24 @@ class DetailedDataView(View):
                     'enemy_player_damage_taken': participant_data['EnemyPlayerDamageTaken'],
                     'team_damage_taken': participant_data['TeamDamageTaken'],
                     'enemy_team_damage_taken': participant_data['EnemyTeamDamageTaken'],
+                    'player_damage_mitigated': participant_data['PlayerDamageMitigated'],
                     'player_gold_earned': participant_data['PlayerGoldEarned'],
                     'enemy_player_gold_earned': participant_data['EnemyPlayerGoldEarned'],
                     'team_gold_earned': participant_data['TeamGoldEarned'],
                     'enemy_team_gold_earned': participant_data['EnemyTeamGoldEarned'],
+                    'player_total_wards_placed':participant_data['PlayerTotalWardsPlaced'],
+                    'enemy_player_total_wards_placed':participant_data['EnemyPlayerTotalWardsPlaced'],
+                    'team_total_wards_placed':participant_data['TeamTotalWardsPlaced'],
+                    'enemy_team_total_wards_placed':participant_data['EnemyTeamTotalWardsPlaced'],
                     'player_wards_killed': participant_data['PlayerWardsKilled'],
                     'enemy_players_wards_killed': participant_data['EnemyPlayerWardsKilled'],
                     'team_wards_killeds': participant_data['TeamWardsKilled'],
                     'enemy_team_wards_killed': participant_data['EnemyTeamWardsKilled'],
                     'player_total_heal': participant_data['PlayerTotalHeal'],
                     'enemy_player_total_heal': participant_data['EnemyPlayerTotalHeal'],
+                    'team_total_heals': participant_data['TeamTotalHeal'],
+                    'enemy_team_total_heals': participant_data['EnemyTeamTotalHeal'],
+                    
 
                     # Ajouter d'autres champs si nécessaire
                 }

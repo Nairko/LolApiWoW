@@ -49,6 +49,10 @@
             <th>Enemy Team Kills</th>
             <th>Enemy Team Assists</th>
             <th>Enemy Team Deaths</th>
+            <th>Player CS</th>
+            <th>Enemy Player CS</th>
+            <th>Team CS</th>
+            <th>Enemy Team CS</th>
             <th>Player Damages</th>
             <th>Enemy Player Damages</th>
             <th>Team Damages</th>
@@ -57,10 +61,15 @@
             <th>Enemy Player Damage Taken</th>
             <th>Team Damage Taken</th>
             <th>Enemy Team Damage Taken</th>
+            <th>Player Damage Mitigated</th>
             <th>Player Gold Earned</th>
             <th>Enemy Player Gold Earned</th>
             <th>Team Gold Earned</th>
             <th>Enemy Team Gold Earned</th>
+            <th>Player Total Wards Placed</th>
+            <th>Enemy Player Total Wards Placed</th>
+            <th>Team Total Wards Placed</th>
+            <th>Enemy Team Total Wards Placed</th>
             <th>Player Wards Killed</th>
             <th>Enemy Player Wards Killed</th>
             <th>Team Wards Killed</th>
@@ -69,6 +78,7 @@
             <th>Enemy Player Total Heal</th>
             <th>Team Total Heal</th>
             <th>Enemy Team Total Heal</th>
+
 
             <!-- Ajoutez d'autres en-têtes de colonne ici -->
         </tr>
@@ -91,6 +101,10 @@
             <td>{{ participant.enemyTeamKills }}</td>
             <td>{{ participant.EnemyTeamAssist }}</td>
             <td>{{ participant.EnnemyTeamDeath }}</td>
+            <td>{{ participant.PlayerCS }}</td>
+            <td>{{ participant.EnemyPlayerCS }}</td>
+            <td>{{ participant.TeamTotalCS}}</td>
+            <td>{{ participant.EnemyTeamTotalCS}}</td>
             <td>{{ participant.PlayerDamages }}</td>
             <td>{{ participant.EnemyPlayerDamages }}</td>
             <td>{{ participant.TeamDamages}}</td>
@@ -99,10 +113,15 @@
             <td>{{ participant.EnemyPlayerDamageTaken}}</td>
             <td>{{ participant.TeamDamageTaken}}</td>
             <td>{{ participant.EnemyTeamDamageTaken}}</td>
+            <td>{{ participant.PlayerDamageMitigated}}</td>
             <td>{{ participant.PlayerGoldEarned}}</td>
             <td>{{ participant.EnemyPlayerGoldEarned}}</td>
             <td>{{ participant.TeamGoldEarned}}</td>
             <td>{{ participant.EnemyTeamGoldEarned}}</td>
+            <td>{{ participant.PlayerTotalWardsPlaced}}</td>
+            <td>{{ participant.EnemyPlayerTotalWardsPlaced}}</td>
+            <td>{{ participant.TeamTotalWardsPlaced}}</td>
+            <td>{{ participant.EnemyTeamTotalWardsPlaced}}</td>
             <td>{{ participant.PlayerWardsKilled}}</td>
             <td>{{ participant.EnemyPlayerWardsKilled}}</td>
             <td>{{ participant.TeamWardsKilled}}</td>
